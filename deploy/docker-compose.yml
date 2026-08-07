@@ -1,0 +1,53 @@
+# Полный стек: PostgreSQL + AiCursach
+#
+# Запуск из корня репозитория:
+#   cp .env.example .env
+#   bash start-docker.sh
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: bsuir-work-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: bsuir
+      POSTGRES_PASSWORD: bsuir
+      POSTGRES_DB: bsuir_work
+    ports:
+      - "${POSTGRES_PORT:-54329}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bsuir -d bsuir_work"]
+      interval: 3s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: bsuir-work-app
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-19407}:19407"
+    env_file:
+      - ../.env
+    environment:
+      WEB_HOST: 0.0.0.0
+      WEB_PORT: 19407
+      DATABASE_URL: postgresql://bsuir:bsuir@postgres:5432/bsuir_work
+      AICURSACH_DATA_DIR: /app/data
+      AICURSACH_USE_SERVER_STORAGE: "1"
+      CHROME_PATH: /usr/bin/chromium
+      CHROMIUM_FLAGS: "--no-sandbox --disable-dev-shm-usage"
+    volumes:
+      - app_data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    shm_size: "256mb"
+
+volumes:
+  pgdata:
+  app_data:

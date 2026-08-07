@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "backend"
+version = "0.1.0"
+description = "AiCursach — LangGraph multi-agent workflow for academic works"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "langgraph>=0.2.45",
+    "langchain-core>=0.3.0",
+    "langchain-openai>=0.2.0",
+    "langchain-tavily>=0.2.0",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "python-multipart>=0.0.12",
+    "python-dotenv>=1.0.1",
+    "python-docx>=1.1.0",
+    "pymupdf>=1.24.0",
+    "openpyxl>=3.1.0",
+    "xlsxwriter>=3.1.0",
+    "Pillow>=10.0.0",
+    "langgraph-checkpoint-postgres>=2.0.0",
+    "psycopg[binary]>=3.1.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["backend/src"]
+include = ["backend*"]
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+pythonpath = ["backend/src"]
+markers = [
+    "integration: tests requiring live PostgreSQL (skip if DB unavailable)",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
